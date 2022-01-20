@@ -67,9 +67,19 @@ public class Drivetrain implements Loggable {
     public void drive() {
         m_drive.arcadeDrive(-driverJoy.getLeftY(), driverJoy.getRightX());
 
+        // this function only runs once until you need to "re-press" the bumper
         if (driverJoy.getLeftBumperPressed()) {
             m_shifter.toggle();
+
+            // assuming solenoid on = high gear, off = low gear
+            // we have to invert this statement because we are get() in the same loop as we previously set via toggle()
+            if (!m_shifter.get()) {
+                m_leftEncoder.setPositionConversionFactor(Constants.Encoders.kGearFactorHigh);
+            } else {
+                m_leftEncoder.setPositionConversionFactor(Constants.Encoders.kGearFactorLow);
+            }
         }
+
     }
 
     @Log(name = "Left Distance Meters")
