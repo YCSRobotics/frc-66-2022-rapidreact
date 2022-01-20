@@ -72,7 +72,8 @@ public class Drivetrain implements Loggable {
             m_shifter.toggle();
 
             // assuming solenoid on = high gear, off = low gear
-            // we have to invert this statement because we are get() in the same loop as we previously set via toggle()
+            // we have to invert this statement because we get() in the same loop as we previously set via toggle()
+            // TODO investigate if the above logic is correct
             if (!m_shifter.get()) {
                 m_leftEncoder.setPositionConversionFactor(Constants.Encoders.kGearFactorHigh);
             } else {
