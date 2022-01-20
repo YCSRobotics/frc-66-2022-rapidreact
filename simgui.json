@@ -1,0 +1,26 @@
+{
+  "HALProvider": {
+    "Other Devices": {
+      "SPARK MAX [0]": {
+        "header": {
+          "open": true
+        }
+      }
+    }
+  },
+  "NTProvider": {
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/LiveWindow/Ungrouped/DifferentialDrive[1]": "DifferentialDrive",
+      "/LiveWindow/Ungrouped/navX-Sensor[1]": "Gyro"
+    }
+  },
+  "NetworkTables": {
+    "Shuffleboard": {
+      "Drivetrain": {
+        "open": true
+      },
+      "open": true
+    }
+  }
+}
