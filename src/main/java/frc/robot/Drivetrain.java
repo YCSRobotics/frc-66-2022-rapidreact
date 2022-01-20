@@ -10,7 +10,9 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxRelativeEncoder;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.SerialPort;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import io.github.oblarg.oblog.Loggable;
@@ -32,6 +34,10 @@ public class Drivetrain implements Loggable {
 
     public XboxController driverJoy = Constants.IO.m_driverJoy;
     public XboxController operatorJoy = Constants.IO.m_operatorJoy;
+
+    private Solenoid m_shifter = new Solenoid(PneumaticsModuleType.CTREPCM, 0);
+
+    private boolean isShifted = false;
 
     public Drivetrain() {
         m_leftFollower.follow(m_leftMaster);
@@ -60,6 +66,10 @@ public class Drivetrain implements Loggable {
     // no need to implement a deadband as it is already implemented in XboxController (default 0.02)
     public void drive() {
         m_drive.arcadeDrive(-driverJoy.getLeftY(), driverJoy.getRightX());
+
+        if (driverJoy.getLeftBumperPressed()) {
+            m_shifter.toggle();
+        }
     }
 
     @Log(name = "Left Distance Meters")
