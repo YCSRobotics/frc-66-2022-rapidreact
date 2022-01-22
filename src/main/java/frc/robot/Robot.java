@@ -4,7 +4,16 @@
 
 package frc.robot;
 
+import java.io.IOException;
+import java.nio.file.Path;
+
+import edu.wpi.first.math.controller.RamseteController;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryUtil;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import io.github.oblarg.oblog.Logger;
 
 /**
@@ -21,21 +30,56 @@ public class Robot extends TimedRobot {
 
   private Drivetrain m_drivetrain = new Drivetrain();
 
+  private RamseteController m_controller = new RamseteController();
+
+  private Trajectory m_trajectory;
+
+  private Timer m_timer;
+
   @Override
   public void robotInit() {
     Logger.configureLoggingAndConfig(this, false);
+
+    String trajectoryJson = "paths/SimplePath.wpilib.json";
+
+    try {
+      Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJson);
+      m_trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+    } catch (IOException e) {
+      DriverStation.reportError("Unable to open trajectory", false);
+    }
+
+    m_drivetrain.plotTrajectory(m_trajectory);
   }
 
   @Override
   public void robotPeriodic() {
     Logger.updateEntries();
+    m_drivetrain.periodic();
   }
 
   @Override
-  public void autonomousInit() {}
+  public void autonomousInit() {
+    m_timer = new Timer();
+    m_timer.start();
+    m_drivetrain.resetOdometry();
+  }
 
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+    if (m_timer.get() < m_trajectory.getTotalTimeSeconds()) {
+      // Get the desired pose from the trajectory.
+      var desiredPose = m_trajectory.sample(m_timer.get());
+
+      // Get the reference chassis speeds from the Ramsete controller.
+      var refChassisSpeeds = m_controller.calculate(m_drivetrain.getPose(), desiredPose);
+
+      // Set the linear and angular speeds.
+      m_drivetrain.drive(refChassisSpeeds.vxMetersPerSecond, -refChassisSpeeds.omegaRadiansPerSecond);
+    } else {
+      m_drivetrain.drive(0, 0);
+    }
+  }
 
   @Override
   public void teleopInit() {}

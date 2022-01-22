@@ -12,7 +12,28 @@
     "types": {
       "/FMSInfo": "FMSInfo",
       "/LiveWindow/Ungrouped/DifferentialDrive[1]": "DifferentialDrive",
-      "/LiveWindow/Ungrouped/navX-Sensor[1]": "Gyro"
+      "/LiveWindow/Ungrouped/PIDController[1]": "PIDController",
+      "/LiveWindow/Ungrouped/PIDController[2]": "PIDController",
+      "/LiveWindow/Ungrouped/navX-Sensor[1]": "Gyro",
+      "/Shuffleboard/Drivetrain/Field View": "Field2d"
+    },
+    "windows": {
+      "/Shuffleboard/Drivetrain/Field View": {
+        "bottom": 900,
+        "foo": {
+          "arrows": false,
+          "style": "Line"
+        },
+        "height": 8.229599952697754,
+        "image": "C:\\Users\\daltz\\Documents\\frc-66-2022-rapidreact\\rapidreactfield\\2022-field.png",
+        "left": 74,
+        "right": 1774,
+        "top": 50,
+        "width": 16.459199905395508,
+        "window": {
+          "visible": true
+        }
+      }
     }
   },
   "NetworkTables": {

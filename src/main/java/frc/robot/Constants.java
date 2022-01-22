@@ -37,4 +37,14 @@ public class Constants {
         public static double kGearFactorLow = kGearRatioLow * kWheelDiameter;
         public static double kGearFactorHigh = kGearRatioHigh * kWheelDiameter;
     }
+
+    public static class Autonomous {
+        public static double kTrackWidthMeters = 0.546;
+
+        // TODO tune these, keep meters everything
+        public static final double kS = 1.69993;
+        public static final double kV = 2.2741;
+        public static final double kA = 1.1605;
+        public static double kP = 1;
+    }
 }
