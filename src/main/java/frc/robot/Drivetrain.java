@@ -63,12 +63,18 @@ public class Drivetrain implements Loggable {
     private Field2d m_field = new Field2d();
 
     public Drivetrain() {
+        m_rightMaster.restoreFactoryDefaults();
+        m_leftMaster.restoreFactoryDefaults();
+        
         m_leftFollower.follow(m_leftMaster);
         m_rightFollower.follow(m_rightMaster);
-        
+
+        // limit max speed cuz zooom
+        m_drive.setMaxOutput(Constants.Motors.kMaxSpeed);
+
         // initialize our encoders
-        m_leftEncoder = m_leftMaster.getEncoder(SparkMaxRelativeEncoder.Type.kHallSensor, Constants.Encoders.kCountsPerRev);
-        m_rightEncoder = m_rightMaster.getEncoder(SparkMaxRelativeEncoder.Type.kHallSensor, Constants.Encoders.kCountsPerRev);
+        m_leftEncoder = m_leftMaster.getEncoder();
+        m_rightEncoder = m_rightMaster.getEncoder();
 
         // set the encoder factor
         m_leftEncoder.setPositionConversionFactor(Constants.Encoders.kGearFactorLow);
@@ -89,6 +95,9 @@ public class Drivetrain implements Loggable {
         m_leftMaster.setOpenLoopRampRate(Constants.Motors.kDriveRampRate);
         m_rightMaster.setOpenLoopRampRate(Constants.Motors.kDriveRampRate);
 
+        m_leftMaster.setClosedLoopRampRate(Constants.Motors.kDriveRampRate);
+        m_rightMaster.setClosedLoopRampRate(Constants.Motors.kDriveRampRate);
+
         // no need to invert follower on spark maxes
         m_leftMaster.setInverted(Constants.Motors.kInvertLeftSide);
         m_rightMaster.setInverted(Constants.Motors.kInvertRightSide);
@@ -101,11 +110,9 @@ public class Drivetrain implements Loggable {
     public void drive() {
         m_drive.arcadeDrive(-driverJoy.getLeftY(), driverJoy.getRightX());
 
-        // assuming solenoid on = high gear, off = low gear
         if (driverJoy.getLeftBumper()) {
             m_shifter.toggle();
         }
-
     }
 
     // autonomous drive function, this should only be called in autonomous
@@ -190,4 +197,14 @@ public class Drivetrain implements Loggable {
     
         m_field.getObject("foo").setPoses(poses);
       }
+
+
+    double kp = 0.25;
+
+    public void runAutonomousSimple(double target) {
+        var speed = (target - getLeftDistanceMeters()) * kp;
+
+        m_leftMaster.set(speed); //1 = 100%, 0.5 = 50%
+        m_rightMaster.set(speed);
+    }
 }

@@ -67,7 +67,12 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousPeriodic() {
-    if (m_timer.get() < m_trajectory.getTotalTimeSeconds()) {
+    m_drivetrain.runAutonomousSimple(2);
+  }
+
+
+  /* 
+      if (m_timer.get() < m_trajectory.getTotalTimeSeconds()) {
       // Get the desired pose from the trajectory.
       var desiredPose = m_trajectory.sample(m_timer.get());
 
@@ -79,8 +84,7 @@ public class Robot extends TimedRobot {
     } else {
       m_drivetrain.drive(0, 0);
     }
-  }
-
+    */
   @Override
   public void teleopInit() {}
 

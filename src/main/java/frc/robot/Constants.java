@@ -9,15 +9,16 @@ import edu.wpi.first.wpilibj.XboxController;
 /** Add your docs here. */
 public class Constants {
     public static class Motors {
-        public static int kLeftMaster = 0;
-        public static int kLeftFollower = 1;
+        public static int kLeftMaster = 1;
+        public static int kLeftFollower = 3;
         public static int kRightMaster = 2;
-        public static int kRightFollower = 3;
+        public static int kRightFollower = 4;
 
-        public static boolean kInvertLeftSide = false;
-        public static boolean kInvertRightSide = true;
+        public static boolean kInvertLeftSide = true;
+        public static boolean kInvertRightSide = false;
 
-        public static double kDriveRampRate = 0.5; // 0.5s to full throttle
+        public static double kDriveRampRate = 0.25; // 0.5s to full throttle
+        public static double kMaxSpeed = 0.5;
     }
 
     public static class IO {
@@ -27,15 +28,16 @@ public class Constants {
 
     public static class Encoders {
         // TODO need to configure these!!!
-        private static double kGearRatioLow = 9999;
+        private static double kGearRatioLow = 1/12.254;
         private static double kGearRatioHigh = 9999;
 
-        private static double kWheelDiameter = 0.1524; //6in in meters
+        private static double kWheelCountsPerRotation = 1/0.479; //6in in meters
 
         public static int kCountsPerRev = 42;
 
-        public static double kGearFactorLow = kGearRatioLow * kWheelDiameter;
-        public static double kGearFactorHigh = kGearRatioHigh * kWheelDiameter;
+        // divide by 4 because quadrature ppr (4 pulses per cpr)
+        public static double kGearFactorLow = (kGearRatioLow * kWheelCountsPerRotation) / 8;
+        public static double kGearFactorHigh = (kGearRatioHigh * kWheelCountsPerRotation) / 8;
     }
 
     public static class Autonomous {
