@@ -10,6 +10,7 @@ import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxRelativeEncoder;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -31,10 +32,10 @@ import io.github.oblarg.oblog.annotations.Log;
 
 /** Add your docs here. */
 public class Drivetrain implements Loggable {
-    private CANSparkMax m_leftMaster = new CANSparkMax(Constants.Motors.kLeftMaster, MotorType.kBrushless);
-    private CANSparkMax m_leftFollower = new CANSparkMax(Constants.Motors.kLeftFollower, MotorType.kBrushless);
-    private CANSparkMax m_rightMaster = new CANSparkMax(Constants.Motors.kRightMaster, MotorType.kBrushless);
-    private CANSparkMax m_rightFollower = new CANSparkMax(Constants.Motors.kRightFollower, MotorType.kBrushless);
+    private static CANSparkMax m_leftMaster = new CANSparkMax(Constants.Motors.kLeftMaster, MotorType.kBrushless);
+    private static CANSparkMax m_leftFollower = new CANSparkMax(Constants.Motors.kLeftFollower, MotorType.kBrushless);
+    private static CANSparkMax m_rightMaster = new CANSparkMax(Constants.Motors.kRightMaster, MotorType.kBrushless);
+    private static CANSparkMax m_rightFollower = new CANSparkMax(Constants.Motors.kRightFollower, MotorType.kBrushless);
 
     private static RelativeEncoder m_leftEncoder;
     private static RelativeEncoder m_rightEncoder;
@@ -66,6 +67,9 @@ public class Drivetrain implements Loggable {
         m_rightMaster.restoreFactoryDefaults();
         m_leftMaster.restoreFactoryDefaults();
         
+        m_leftMaster.setIdleMode(IdleMode.kCoast);
+        m_rightMaster.setIdleMode(IdleMode.kCoast);
+
         m_leftFollower.follow(m_leftMaster);
         m_rightFollower.follow(m_rightMaster);
 
@@ -150,6 +154,11 @@ public class Drivetrain implements Loggable {
     @Log(name = "Right Distance Meters")
     public static double getRightDistanceMeters() {
         return m_rightEncoder.getPosition();
+    }
+
+    @Log(name = "Raw Units")
+    public static double getRawUnits() {
+        return m_leftEncoder.getCountsPerRevolution();
     }
 
     @Log(name = "Left Velocity Meters")

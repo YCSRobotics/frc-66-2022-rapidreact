@@ -29,16 +29,15 @@ public class Constants {
 
     public static class Encoders {
         // TODO need to configure these!!!
-        private static double kGearRatioLow = 15;
+        private static double kGearRatioLow = 1/15;
         private static double kGearRatioHigh = 9999;
 
-        private static double kWheelCountsPerRotation = 0.15; //6in in meters
+        private static double kWheelDiameter = 0.15; //6in in meters
+        private static double kWheelRevolutionsPerMeter = (Math.PI * kWheelDiameter);
 
-        public static int kCountsPerRev = 42;
-
-        // divide by 4 because quadrature ppr (4 pulses per cpr)
-        public static double kGearFactorLow = (kGearRatioLow * kWheelCountsPerRotation) / 8;
-        public static double kGearFactorHigh = (kGearRatioHigh * kWheelCountsPerRotation) / 8;
+        //public static double kGearFactorLow = 1;
+        public static double kGearFactorLow = kGearRatioLow * kWheelDiameter * Math.PI;
+        public static double kGearFactorHigh = 0;
     }
 
     public static class Autonomous {
