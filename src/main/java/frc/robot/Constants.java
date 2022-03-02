@@ -18,6 +18,7 @@ public class Constants {
         public static boolean kInvertRightSide = false;
 
         public static double kDriveRampRate = 0.25; // 0.5s to full throttle
+        public static double kTurnLimiter = 0.75;
         public static double kMaxSpeed = 0.5;
     }
 
@@ -28,10 +29,10 @@ public class Constants {
 
     public static class Encoders {
         // TODO need to configure these!!!
-        private static double kGearRatioLow = 1/12.254;
+        private static double kGearRatioLow = 15;
         private static double kGearRatioHigh = 9999;
 
-        private static double kWheelCountsPerRotation = 1/0.479; //6in in meters
+        private static double kWheelCountsPerRotation = 0.15; //6in in meters
 
         public static int kCountsPerRev = 42;
 

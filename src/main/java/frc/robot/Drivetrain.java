@@ -104,12 +104,13 @@ public class Drivetrain implements Loggable {
 
         // disable the stupid motor safety when you are not feeding the object (aka auton)
         m_drive.setSafetyEnabled(false);
+        m_drive.setDeadband(0.20);
     }
 
     // no need to implement a deadband as it is already implemented in XboxController (default 0.02)
     public void drive() {
-        m_drive.arcadeDrive(-driverJoy.getLeftY(), driverJoy.getRightX());
-
+        m_drive.arcadeDrive(-driverJoy.getLeftY(), driverJoy.getRightX() * Constants.Motors.kTurnLimiter);
+        
         if (driverJoy.getLeftBumper()) {
             m_shifter.toggle();
         }
