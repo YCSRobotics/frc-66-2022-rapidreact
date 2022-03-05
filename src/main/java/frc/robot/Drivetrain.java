@@ -131,6 +131,13 @@ public class Drivetrain implements Loggable {
         if (driverJoy.getLeftBumper()) {
             //m_shifter.toggle();
         }
+
+        // speed button
+        if (driverJoy.getRightBumper()) {
+            m_drive.setMaxOutput(1.0);
+        } else {
+            m_drive.setMaxOutput(Constants.Motors.kMaxSpeed);
+        }
     }
 
     // autonomous drive function, this should only be called in autonomous

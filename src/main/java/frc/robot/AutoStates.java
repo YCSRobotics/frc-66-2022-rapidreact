@@ -17,7 +17,9 @@ import io.github.oblarg.oblog.annotations.Log;
 
 /** State machine that handles switching from various autonomous states **/
 public class AutoStates {
+    @Log (name = "Current Auto State", methodName = "name")
     private static STATE m_currentState = STATE.STOP_ALL;
+
     private Drivetrain m_drivetrain;
 
     public static boolean autonomousInit = false;
