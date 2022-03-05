@@ -66,6 +66,8 @@ public class Robot extends TimedRobot {
     m_timer = new Timer();
     m_timer.start();
     m_drivetrain.resetOdometry();
+
+    m_drivetrain.setPose(m_trajectory.getInitialPose());
   }
 
   @Log (name = "Expected Angle")
@@ -80,7 +82,7 @@ public class Robot extends TimedRobot {
       // Get the reference chassis speeds from the Ramsete controller.
       var refChassisSpeeds = m_controller.calculate(m_drivetrain.getPose(), desiredPose);
 
-      expectedRotation = -refChassisSpeeds.omegaRadiansPerSecond;
+      expectedRotation = refChassisSpeeds.omegaRadiansPerSecond;
 
       // Set the linear and angular speeds.
       m_drivetrain.drive(refChassisSpeeds.vxMetersPerSecond, expectedRotation);

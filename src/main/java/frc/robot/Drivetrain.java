@@ -217,6 +217,10 @@ public class Drivetrain implements Loggable {
         return m_odometry.getPoseMeters();
     }
 
+    public void setPose(Pose2d pose) {
+        m_odometry.resetPosition(pose, m_gyro.getRotation2d());
+    }
+
     // helper method to reset encoders
     // useful for trajectory following
     public static void resetEncoders() {
