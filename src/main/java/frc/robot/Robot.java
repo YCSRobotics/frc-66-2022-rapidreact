@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import frc.robot.AutoStates.STATE;
 import io.github.oblarg.oblog.Logger;
@@ -44,6 +45,8 @@ public class Robot extends TimedRobot {
     // ensure that corresponds to a valid INIT state
     m_chooser.setDefaultOption("Go Straight", AutoStates.STATE.GO_STRAIGHT);
     m_chooser.addOption("Shooting Auton Middle", AutoStates.STATE.TRAJ_GRABBALL_INIT);
+
+    LiveWindow.disableAllTelemetry(); //disable livewindow telemetry, causes robot lag
   }
 
   @Override
