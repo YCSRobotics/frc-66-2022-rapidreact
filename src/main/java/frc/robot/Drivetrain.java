@@ -4,10 +4,12 @@
 
 package frc.robot;
 
+import java.sql.Driver;
 import java.util.ArrayList;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxRelativeEncoder;
 import com.revrobotics.CANSparkMax.IdleMode;
@@ -21,6 +23,7 @@ import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.Solenoid;
@@ -47,7 +50,7 @@ public class Drivetrain implements Loggable {
     public XboxController driverJoy = Constants.IO.m_driverJoy;
     public XboxController operatorJoy = Constants.IO.m_operatorJoy;
 
-    private Solenoid m_shifter = new Solenoid(PneumaticsModuleType.CTREPCM, 0);
+    // private Solenoid m_shifter = new Solenoid(PneumaticsModuleType.CTREPCM, 0);
 
     // autonomous functions
     private DifferentialDriveOdometry m_odometry = new DifferentialDriveOdometry(m_gyro.getRotation2d());
@@ -108,7 +111,17 @@ public class Drivetrain implements Loggable {
 
         // disable the stupid motor safety when you are not feeding the object (aka auton)
         m_drive.setSafetyEnabled(false);
-        m_drive.setDeadband(0.20);
+        m_drive.setDeadband(Constants.IO.kDeadBand);
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        m_leftMaster.burnFlash();
+        m_rightMaster.burnFlash();
     }
 
     // no need to implement a deadband as it is already implemented in XboxController (default 0.02)
@@ -116,7 +129,7 @@ public class Drivetrain implements Loggable {
         m_drive.arcadeDrive(-driverJoy.getLeftY(), driverJoy.getRightX() * Constants.Motors.kTurnLimiter);
         
         if (driverJoy.getLeftBumper()) {
-            m_shifter.toggle();
+            //m_shifter.toggle();
         }
     }
 
@@ -126,24 +139,48 @@ public class Drivetrain implements Loggable {
         setSpeeds(wheelSpeeds);
     }
 
+    @Log (name = "Left Expected Voltage")
+    double leftOutput = 0.0;
+    @Log (name = "Right Expected Voltage")
+    double rightOutput = 0.0;
+
+    @Log (name = "L Expected Speeds")
+    double leftSpeed = 0.0;
+    @Log(name = "R Expected Speeds")
+    double rightSpeed = 0.0;
+
     // set speeds function, should only be called by autonomous drive function
     private void setSpeeds(DifferentialDriveWheelSpeeds speeds) {
         var leftFeedforward = m_feedforward.calculate(speeds.leftMetersPerSecond);
         var rightFeedforward = m_feedforward.calculate(speeds.rightMetersPerSecond);
     
-        var leftOutput =
+        leftSpeed = speeds.leftMetersPerSecond;
+        rightSpeed = speeds.rightMetersPerSecond;
+
+        leftOutput =
             m_leftPIDController.calculate(getLeftVelocityMeters(), speeds.leftMetersPerSecond);
-        var rightOutput =
+        rightOutput =
             m_rightPIDController.calculate(getRightVelocityMeters(), speeds.rightMetersPerSecond);
 
-        m_leftMaster.setVoltage((leftOutput + leftFeedforward));
-        m_rightMaster.setVoltage((rightOutput + rightFeedforward));
+        m_leftMaster.setVoltage(leftOutput); // TODO, add feedforward
+        m_rightMaster.setVoltage(rightOutput); //TODO, add feedforward
     }
     
     // the sole purpose of this function is to run continuously regardless of robot state IE, autonomous vs teleop
     // this is to ensure accurate updating of odometry and pose
     public void periodic() {
+        m_field.setRobotPose(m_odometry.getPoseMeters());
         m_odometry.update(m_gyro.getRotation2d(), getLeftDistanceMeters(), getRightDistanceMeters());
+    }
+
+    @Log(name = "Actual Left Voltage")
+    public static double getLeftVoltage() {
+        return m_leftMaster.getBusVoltage();
+    }
+
+    @Log(name = "Actual Right Voltage")
+    public static double getRightVoltage() {
+        return m_rightMaster.getBusVoltage();
     }
 
     @Log(name = "Left Distance Meters")
@@ -163,12 +200,12 @@ public class Drivetrain implements Loggable {
 
     @Log(name = "Left Velocity Meters")
     public static double getLeftVelocityMeters() {
-        return m_leftEncoder.getVelocity();
+        return m_leftEncoder.getVelocity() / 60; //minute to seconds
     }
 
     @Log(name = "Right Velocity Meters")
     public static double getRightVelocityMeters() {
-        return m_rightEncoder.getVelocity();
+        return m_rightEncoder.getVelocity() / 60; //minute to seconds
     }
 
     @Log(name = "Gyro Yaw")

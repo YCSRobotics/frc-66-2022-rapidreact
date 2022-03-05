@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import io.github.oblarg.oblog.Logger;
+import io.github.oblarg.oblog.annotations.Log;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -28,7 +29,7 @@ public class Robot extends TimedRobot {
    * initialization code.
    */
 
-  private Drivetrain m_drivetrain = new Drivetrain();
+  private Drivetrain m_drivetrain;
 
   private RamseteController m_controller = new RamseteController();
 
@@ -38,6 +39,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
+    m_drivetrain = new Drivetrain(); // necessary to be initialized before logger
+
     Logger.configureLoggingAndConfig(this, false);
 
     String trajectoryJson = "paths/SimplePath.wpilib.json";
@@ -65,13 +68,11 @@ public class Robot extends TimedRobot {
     m_drivetrain.resetOdometry();
   }
 
+  @Log (name = "Expected Angle")
+  double expectedRotation = 0.0;
+
   @Override
   public void autonomousPeriodic() {
-    m_drivetrain.runAutonomousSimple(2);
-  }
-
-
-  /* 
       if (m_timer.get() < m_trajectory.getTotalTimeSeconds()) {
       // Get the desired pose from the trajectory.
       var desiredPose = m_trajectory.sample(m_timer.get());
@@ -79,12 +80,15 @@ public class Robot extends TimedRobot {
       // Get the reference chassis speeds from the Ramsete controller.
       var refChassisSpeeds = m_controller.calculate(m_drivetrain.getPose(), desiredPose);
 
+      expectedRotation = -refChassisSpeeds.omegaRadiansPerSecond;
+
       // Set the linear and angular speeds.
-      m_drivetrain.drive(refChassisSpeeds.vxMetersPerSecond, -refChassisSpeeds.omegaRadiansPerSecond);
+      m_drivetrain.drive(refChassisSpeeds.vxMetersPerSecond, expectedRotation);
     } else {
       m_drivetrain.drive(0, 0);
     }
-    */
+  }
+
   @Override
   public void teleopInit() {}
 

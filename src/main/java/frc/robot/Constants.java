@@ -25,28 +25,27 @@ public class Constants {
     public static class IO {
         public static XboxController m_driverJoy = new XboxController(0);
         public static XboxController m_operatorJoy = new XboxController(1);
+
+        public static double kDeadBand = 0.20;
     }
 
     public static class Encoders {
         // TODO need to configure these!!!
-        private static double kGearRatioLow = 1/15;
+        public static double kGearRatioLow = 1.0/15.0;
         private static double kGearRatioHigh = 9999;
 
-        private static double kWheelDiameter = 0.15; //6in in meters
-        private static double kWheelRevolutionsPerMeter = (Math.PI * kWheelDiameter);
+        public static double kWheelCircumference = 0.152 * Math.PI; //6in in meters
 
-        //public static double kGearFactorLow = 1;
-        public static double kGearFactorLow = kGearRatioLow * kWheelDiameter * Math.PI;
+        public static double kGearFactorLow = kGearRatioLow * kWheelCircumference; //0.032
         public static double kGearFactorHigh = 0;
     }
 
     public static class Autonomous {
         public static double kTrackWidthMeters = 0.546;
 
-        // TODO tune these, keep meters everything
-        public static final double kS = 1.69993;
-        public static final double kV = 2.2741;
-        public static final double kA = 1.1605;
-        public static double kP = 1;
+        public static final double kS = 0.129;
+        public static final double kV = 3.9299;
+        public static final double kA = 0.329;
+        public static double kP = 4.4595;
     }
 }
