@@ -14,6 +14,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import frc.robot.AutoStates.STATE;
 import io.github.oblarg.oblog.Logger;
 import io.github.oblarg.oblog.annotations.Log;
 
@@ -29,66 +31,38 @@ public class Robot extends TimedRobot {
    * initialization code.
    */
 
-  private Drivetrain m_drivetrain;
+  private Drivetrain m_drivetrain = new Drivetrain();
+  private AutoStates m_autoStates = new AutoStates(m_drivetrain);
 
-  private RamseteController m_controller = new RamseteController();
-
-  private Trajectory m_trajectory;
-
-  private Timer m_timer;
+  private SendableChooser<AutoStates.STATE> m_chooser = new SendableChooser<>();
 
   @Override
-  public void robotInit() {
-    m_drivetrain = new Drivetrain(); // necessary to be initialized before logger
-
+  public void robotInit() { // necessary to be initialized before logger
     Logger.configureLoggingAndConfig(this, false);
 
-    String trajectoryJson = "paths/SimplePath.wpilib.json";
-
-    try {
-      Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJson);
-      m_trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
-    } catch (IOException e) {
-      DriverStation.reportError("Unable to open trajectory", false);
-    }
-
-    m_drivetrain.plotTrajectory(m_trajectory);
+    // set chosen auton routines here
+    // ensure that corresponds to a valid INIT state
+    m_chooser.setDefaultOption("Go Straight", AutoStates.STATE.GO_STRAIGHT);
+    m_chooser.addOption("Shooting Auton Middle", AutoStates.STATE.TRAJ_GRABBALL_INIT);
   }
 
   @Override
   public void robotPeriodic() {
     Logger.updateEntries();
     m_drivetrain.periodic();
+    m_autoStates.runStateMachine(m_chooser.getSelected());
   }
 
   @Override
   public void autonomousInit() {
-    m_timer = new Timer();
-    m_timer.start();
-    m_drivetrain.resetOdometry();
-
-    m_drivetrain.setPose(m_trajectory.getInitialPose());
+    AutoStates.autonomousInit = true;
+    AutoStates.setState(m_chooser.getSelected());
   }
-
-  @Log (name = "Expected Angle")
-  double expectedRotation = 0.0;
 
   @Override
   public void autonomousPeriodic() {
-      if (m_timer.get() < m_trajectory.getTotalTimeSeconds()) {
-      // Get the desired pose from the trajectory.
-      var desiredPose = m_trajectory.sample(m_timer.get());
-
-      // Get the reference chassis speeds from the Ramsete controller.
-      var refChassisSpeeds = m_controller.calculate(m_drivetrain.getPose(), desiredPose);
-
-      expectedRotation = refChassisSpeeds.omegaRadiansPerSecond;
-
-      // Set the linear and angular speeds.
-      m_drivetrain.drive(refChassisSpeeds.vxMetersPerSecond, expectedRotation);
-    } else {
-      m_drivetrain.drive(0, 0);
-    }
+    AutoStates.autonomousInit = false;
+    AutoStates.autonomousPeriodic = true;
   }
 
   @Override
