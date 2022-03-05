@@ -17,7 +17,6 @@ import io.github.oblarg.oblog.annotations.Log;
 
 /** State machine that handles switching from various autonomous states **/
 public class AutoStates {
-    @Log (name = "Current Auto State", methodName = "name")
     private static STATE m_currentState = STATE.STOP_ALL;
 
     private Drivetrain m_drivetrain;
@@ -44,19 +43,30 @@ public class AutoStates {
         ROTATE_TO_TARGET_END,
         SHOOT_TARGET,
         SHOOT_TARGET_END,
-        STOP_ALL,
+        STOP_ALL, GO_STRAIGHT_INIT,
     }
 
     public static STATE getState() {
         return m_currentState;
     }
 
+    public static String getStateName() {
+        return m_currentState.name();
+    }
+
     public static void setState(STATE newState) {
         m_currentState = newState;
     }
 
-    public void runStateMachine(STATE selectedState) {
+    public void runStateMachine() {
         switch (m_currentState) {
+            case GO_STRAIGHT_INIT:
+                if (autonomousInit) {
+                    goStraightInit();
+                    autonomousInit = false;
+                    m_currentState = STATE.GO_STRAIGHT;
+                }
+                break;
             case GO_STRAIGHT:
                 goStraight();
                 break;
@@ -87,12 +97,18 @@ public class AutoStates {
                 if (autonomousInit) { //this will only be called once
                     m_trajectory = initTrajectory("paths/SimplePath.wpilib.json");
                     m_currentState = STATE.TRAJ_GRABBALL_FOLLOWING;
+                    autonomousInit = false;
                 }
                 break;
             default:
                 break;
 
         }
+    }
+
+    private void goStraightInit() {
+        m_drivetrain.resetOdometry();
+        Drivetrain.resetEncoders();
     }
 
     private void goStraight() {
@@ -124,7 +140,7 @@ public class AutoStates {
         m_timer.start();
 
         m_drivetrain.resetOdometry();
-        m_drivetrain.setPose(m_trajectory.getInitialPose());
+        m_drivetrain.setPose(trajectory.getInitialPose());
         return trajectory;
     }
 

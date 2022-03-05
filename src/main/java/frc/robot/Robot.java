@@ -35,6 +35,7 @@ public class Robot extends TimedRobot {
   private Drivetrain m_drivetrain = new Drivetrain();
   private AutoStates m_autoStates = new AutoStates(m_drivetrain);
 
+  @Log(name = "Autonomous")
   private SendableChooser<AutoStates.STATE> m_chooser = new SendableChooser<>();
 
   @Override
@@ -53,7 +54,8 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     Logger.updateEntries();
     m_drivetrain.periodic();
-    m_autoStates.runStateMachine(m_chooser.getSelected());
+    m_autoStates.runStateMachine();
+    System.out.println(AutoStates.getState().name());
   }
 
   @Override
@@ -64,7 +66,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousPeriodic() {
-    AutoStates.autonomousInit = false;
     AutoStates.autonomousPeriodic = true;
   }
 
