@@ -14,12 +14,24 @@ public class Constants {
         public static int kRightMaster = 2;
         public static int kRightFollower = 4;
 
+        // CTRE devices have a separate CAN ID
+        public static int kIntakeMotor = 0;
+        public static int kTowerMotor = 1;
+        public static int kShooterMotor = 2;
+
+        public static double kIntakePower = -0.25;
+        public static double kTowerPower = 0.5;
+
         public static boolean kInvertLeftSide = true;
         public static boolean kInvertRightSide = false;
 
         public static double kDriveRampRate = 0.25; // 0.5s to full throttle
         public static double kTurnLimiter = 0.75;
         public static double kMaxSpeed = 0.5;
+
+        public static double kTargetShooterRPM = 500; //TODO, change/tune
+        public static double kTargetShooterRPMTolerance = 100; //acceptable error
+        public static double kShootTimeout = 5; //time until the shooter stops shooting
     }
 
     public static class IO {
@@ -47,5 +59,9 @@ public class Constants {
         public static final double kV = 3.9299;
         public static final double kA = 0.329;
         public static double kP = 4.4595;
+    }
+
+    public static class Sensors {
+        public static int kBreakBeamDIO = 0;
     }
 }

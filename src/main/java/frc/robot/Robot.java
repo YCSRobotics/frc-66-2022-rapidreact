@@ -33,6 +33,7 @@ public class Robot extends TimedRobot {
    */
 
   private Drivetrain m_drivetrain = new Drivetrain();
+  // private Shooter m_shooter = new Shooter(); //UNCOMMENT FOR SHOOTER CONTROL
   private AutoStates m_autoStates = new AutoStates(m_drivetrain);
 
   @Log(name = "Autonomous")
@@ -75,6 +76,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     m_drivetrain.drive();
+    // m_shooter.shooterTeleop(); //UNCOMMENT FOR SHOOTER CONTROL
   }
 
   @Override
