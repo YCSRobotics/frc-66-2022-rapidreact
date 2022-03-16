@@ -50,7 +50,7 @@ public class Drivetrain implements Loggable {
     public XboxController driverJoy = Constants.IO.m_driverJoy;
     public XboxController operatorJoy = Constants.IO.m_operatorJoy;
 
-    // private Solenoid m_shifter = new Solenoid(PneumaticsModuleType.CTREPCM, 0);
+    // private Solenoid m_shifter = new Solenoid(PneumaticsModuleType.CTREPCM, Constants.Solenoids.kGearboxSolenoid);
 
     // autonomous functions
     private DifferentialDriveOdometry m_odometry = new DifferentialDriveOdometry(m_gyro.getRotation2d());

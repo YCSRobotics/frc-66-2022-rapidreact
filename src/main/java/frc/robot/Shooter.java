@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 
 public class Shooter {
-    private Solenoid m_intakeSolenoid = new Solenoid(PneumaticsModuleType.REVPH, 0);
+    private Solenoid m_intakeSolenoid = new Solenoid(PneumaticsModuleType.REVPH, Constants.Solenoids.kIntakeSolenoid);
     private TalonSRX m_intakeMotor = new TalonSRX(Constants.Motors.kIntakeMotor);
     private TalonSRX m_towerMotor = new TalonSRX(Constants.Motors.kTowerMotor);
     private TalonSRX m_shooterMotor = new TalonSRX(Constants.Motors.kShooterMotor);
@@ -63,13 +63,7 @@ public class Shooter {
 
     // enable/disable solenoid, should not be ran periodically
     private void extend() {
-        if (!isExtended) {
-            m_intakeSolenoid.set(true);
-            isExtended = true;
-        }  else {
-            m_intakeSolenoid.set(false);
-            isExtended = false;
-        }
+        m_intakeSolenoid.toggle();
     }
 
     // TODO, verify positive or negative intakes

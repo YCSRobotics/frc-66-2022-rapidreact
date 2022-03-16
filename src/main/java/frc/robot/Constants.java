@@ -64,4 +64,9 @@ public class Constants {
     public static class Sensors {
         public static int kBreakBeamDIO = 0;
     }
+
+    public static class Solenoids {
+        public static int kGearboxSolenoid = 0;
+        public static int kIntakeSolenoid = 1;
+    }
 }
