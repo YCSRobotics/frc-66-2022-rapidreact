@@ -126,7 +126,7 @@ public class Drivetrain implements Loggable {
 
     // no need to implement a deadband as it is already implemented in XboxController (default 0.02)
     public void drive() {
-        m_drive.arcadeDrive(-driverJoy.getLeftY(), driverJoy.getRightX() * Constants.Motors.kTurnLimiter);
+        m_drive.arcadeDrive(-driverJoy.getLeftY(), driverJoy.getRightX() * Constants.Motors.kTurnLimiter, true);
         
         if (driverJoy.getLeftBumper()) {
             //m_shifter.toggle();
