@@ -10,8 +10,8 @@ import edu.wpi.first.wpilibj.XboxController;
 public class Constants {
     public static class Motors {
         public static int kLeftMaster = 1;
-        public static int kLeftFollower = 3;
-        public static int kRightMaster = 2;
+        public static int kLeftFollower = 2;
+        public static int kRightMaster = 3;
         public static int kRightFollower = 4;
 
         // CTRE devices have a separate CAN ID
