@@ -50,7 +50,7 @@ public class Drivetrain implements Loggable {
     public XboxController driverJoy = Constants.IO.m_driverJoy;
     public XboxController operatorJoy = Constants.IO.m_operatorJoy;
 
-    // private Solenoid m_shifter = new Solenoid(PneumaticsModuleType.CTREPCM, Constants.Solenoids.kGearboxSolenoid);
+    private Solenoid m_shifter = new Solenoid(PneumaticsModuleType.REVPH, Constants.Solenoids.kGearboxSolenoid);
 
     // autonomous functions
     private DifferentialDriveOdometry m_odometry = new DifferentialDriveOdometry(m_gyro.getRotation2d());
@@ -129,7 +129,7 @@ public class Drivetrain implements Loggable {
         m_drive.arcadeDrive(-driverJoy.getLeftY(), driverJoy.getRightX() * Constants.Motors.kTurnLimiter, true);
         
         if (driverJoy.getLeftBumper()) {
-            //m_shifter.toggle();
+            m_shifter.toggle();
         }
 
         // speed button
@@ -261,6 +261,7 @@ public class Drivetrain implements Loggable {
 
     public void runAutonomousSimple(double target) {
         var speed = (target - getLeftDistanceMeters()) * kp;
+ 
 
         m_leftMaster.set(speed); //1 = 100%, 0.5 = 50%
         m_rightMaster.set(speed);

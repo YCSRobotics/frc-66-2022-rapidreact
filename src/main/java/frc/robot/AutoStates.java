@@ -35,7 +35,7 @@ public class AutoStates {
     }
 
     public static enum STATE {
-        GO_STRAIGHT,
+        TRAJ_GO_STRAIGHT,
         TRAJ_GRABBALL_INIT,
         TRAJ_GRABBALL_FOLLOWING,
         TRAJ_GRABBALL_END,
@@ -61,14 +61,20 @@ public class AutoStates {
     public void runStateMachine() {
         switch (m_currentState) {
             case GO_STRAIGHT_INIT:
-                if (autonomousInit) {
-                    goStraightInit();
+                if (autonomousInit) { //this will only be called once
+                    m_trajectory = initTrajectory("paths/GoStraight.wpilib.json");
+                    m_currentState = STATE.TRAJ_GO_STRAIGHT;
                     autonomousInit = false;
-                    m_currentState = STATE.GO_STRAIGHT;
                 }
                 break;
-            case GO_STRAIGHT:
-                goStraight();
+            case TRAJ_GO_STRAIGHT:
+                if (autonomousPeriodic) { // this will be called continuously
+                    followTrajectory();
+                }
+
+                if (isTrajectoryDone()) { // done following trajectory
+                    m_currentState = STATE.STOP_ALL;
+                }
                 break;
             case ROTATE_TO_TARGET:
                 break;
@@ -116,9 +122,9 @@ public class AutoStates {
             return; //do nothing, we are not in periodic
         }
 
-        var targetDistance = 3.0; // 3 meters
+        var targetDistance = -3.0; // 3 meters
         if (Math.abs(Drivetrain.getLeftDistanceMeters()) <= targetDistance - 0.2) {
-            m_drivetrain.runAutonomousSimple(3.0);
+            m_drivetrain.runAutonomousSimple(-3.0);
         } else {
             m_currentState = STATE.STOP_ALL;
         }

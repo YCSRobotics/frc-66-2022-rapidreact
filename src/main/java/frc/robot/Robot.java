@@ -33,7 +33,7 @@ public class Robot extends TimedRobot {
    */
 
   private Drivetrain m_drivetrain = new Drivetrain();
-  // private Shooter m_shooter = new Shooter(); //UNCOMMENT FOR SHOOTER CONTROL
+  private Shooter m_shooter = new Shooter(); //UNCOMMENT FOR SHOOTER CONTROL
   private AutoStates m_autoStates = new AutoStates(m_drivetrain);
 
   @Log(name = "Autonomous")
@@ -45,7 +45,7 @@ public class Robot extends TimedRobot {
 
     // set chosen auton routines here
     // ensure that corresponds to a valid INIT state
-    m_chooser.setDefaultOption("Go Straight", AutoStates.STATE.GO_STRAIGHT);
+    m_chooser.setDefaultOption("Go Straight", AutoStates.STATE.GO_STRAIGHT_INIT);
     m_chooser.addOption("Shooting Auton Middle", AutoStates.STATE.TRAJ_GRABBALL_INIT);
 
     LiveWindow.disableAllTelemetry(); //disable livewindow telemetry, causes robot lag
@@ -71,12 +71,15 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void teleopInit() {}
+  public void teleopInit() {
+    AutoStates.autonomousPeriodic = false;
+  }
 
   @Override
   public void teleopPeriodic() {
+    AutoStates.autonomousPeriodic = false;
     m_drivetrain.drive();
-    // m_shooter.shooterTeleop(); //UNCOMMENT FOR SHOOTER CONTROL
+    m_shooter.shooterTeleop(); //UNCOMMENT FOR SHOOTER CONTROL
   }
 
   @Override

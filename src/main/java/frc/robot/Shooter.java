@@ -27,6 +27,8 @@ public class Shooter {
     private BangBangController m_shooterVelocityBB = new BangBangController();
     private XboxController operatorJoy = Constants.IO.m_operatorJoy;
 
+    private Timer m_timer = new Timer();
+
     public Shooter() {
         m_shooterMotor.configFactoryDefault();
     }
@@ -37,55 +39,49 @@ public class Shooter {
         // into shot position
         // until DIO is wired, relies on operator to release bumper when
         // in position
-        if (operatorJoy.getRightBumperPressed()) {
-            if (!isExtended) { //if not extended, extend
-                extend();
-            }
+        if (operatorJoy.getRightBumper()) {
+            m_intakeSolenoid.set(true);
             
-            intake();
+            intake(Constants.Motors.kIntakePower);
+        } else if (operatorJoy.getLeftBumper()) {
+            intake(-Constants.Motors.kIntakePower);
+        } else {
+            intake(0.0);
+            m_intakeSolenoid.set(false);
         }
-
-        if (operatorJoy.getAButton() || isCurrentlyShooting) {
-            isCurrentlyShooting = true; //ensures operator only has to press button once to shoot
-            if (!isTimerActive) {
-                isTimerActive = true;
-                shootTimeout.reset();
-                shootTimeout.start();
-            } else {
-                if (shootTimeout.get() >= Constants.Motors.kShootTimeout) {
-                    shootTimeout.stop();
-                    isTimerActive = false;
-                    isCurrentlyShooting = false;
-                }
+        
+        if (operatorJoy.getAButton()) {
+            if (!isCurrentlyShooting) {
+                isCurrentlyShooting = true;
+                m_timer.reset();
+                m_timer.start();
             }
-        }
-    }
 
-    // enable/disable solenoid, should not be ran periodically
-    private void extend() {
-        m_intakeSolenoid.toggle();
+            if (m_timer.get() > 1) {
+                shoot(0.9);
+                towerFeed(Constants.Motors.kTowerPower);
+            } else {
+                shoot(0.9);
+            }
+        } else {
+            shoot(0.0);
+            towerFeed(0.0);
+            isCurrentlyShooting = false;
+        }
     }
 
     // TODO, verify positive or negative intakes
-    public void intake() {
-        m_intakeMotor.set(ControlMode.PercentOutput, Constants.Motors.kIntakePower);
+    public void intake(double power) {
+        m_intakeMotor.set(ControlMode.PercentOutput, power);
     }
 
     // TODO, verify positive or negative goes the direction we want
-    public void towerFeed() {
-        m_towerMotor.set(ControlMode.PercentOutput, Constants.Motors.kTowerPower);
+    public void towerFeed(double power) {
+        m_towerMotor.set(ControlMode.PercentOutput, power);
     }
 
-    public void shoot() {
-        m_shooterVelocityBB.setTolerance(Constants.Motors.kTargetShooterRPMTolerance);
-        double targetOut = m_shooterVelocityBB.calculate(getShooterRPM(), Constants.Motors.kTargetShooterRPM);
-
-        // using a bang bang controller for optimal response times, P accuracy isn't necessary
-        // clamp to percent output, but really doesn't matter since on/off
-        m_shooterMotor.set(ControlMode.PercentOutput, MathUtil.clamp(targetOut, 0, 1.0));
-        if (m_shooterVelocityBB.atSetpoint()) {
-            towerFeed(); //shoot
-        }
+    public void shoot(double power) {
+        m_shooterMotor.set(ControlMode.PercentOutput, power);
     }
 
     // returns if the dio is "active" or not

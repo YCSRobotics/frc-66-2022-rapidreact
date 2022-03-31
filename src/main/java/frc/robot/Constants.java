@@ -15,12 +15,12 @@ public class Constants {
         public static int kRightFollower = 4;
 
         // CTRE devices have a separate CAN ID
-        public static int kIntakeMotor = 0;
-        public static int kTowerMotor = 1;
+        public static int kIntakeMotor = 1;
+        public static int kTowerMotor = 0;
         public static int kShooterMotor = 2;
 
-        public static double kIntakePower = -0.25;
-        public static double kTowerPower = 0.5;
+        public static double kIntakePower = -1.0;
+        public static double kTowerPower = -0.5;
 
         public static boolean kInvertLeftSide = true;
         public static boolean kInvertRightSide = false;
@@ -29,7 +29,7 @@ public class Constants {
         public static double kTurnLimiter = 0.75;
         public static double kMaxSpeed = 0.5;
 
-        public static double kTargetShooterRPM = 500; //TODO, change/tune
+        public static double kTargetShooterRPM = 300; //TODO, change/tune
         public static double kTargetShooterRPMTolerance = 100; //acceptable error
         public static double kShootTimeout = 5; //time until the shooter stops shooting
     }
