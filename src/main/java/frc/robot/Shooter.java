@@ -123,6 +123,10 @@ public class Shooter implements Loggable {
         return m_lookupTable.get(distance);
     }
 
+    @Log.BooleanBox(name = "Target Detected", tabName = "Driver", width = 2, height = 2)
+    public boolean isValidTarget() {
+        return m_gloworm.getLatestResult().hasTargets();
+    }
     // returns if the dio is "active" or not
     public static boolean isBottomCargoLoaded() {
         return m_breakBeamBottom.get();

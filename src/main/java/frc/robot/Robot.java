@@ -36,7 +36,7 @@ public class Robot extends TimedRobot {
   private Shooter m_shooter = new Shooter(); //UNCOMMENT FOR SHOOTER CONTROL
   private AutoStates m_autoStates = new AutoStates(m_drivetrain, m_shooter);
 
-  @Log(name = "Autonomous", width = 3, height = 2, tabName = "Driver")
+  @Log(name = "Autonomous", width = 2, height = 1, tabName = "Driver")
   private SendableChooser<AutoStates.STATE> m_chooser = new SendableChooser<>();
 
   @Override

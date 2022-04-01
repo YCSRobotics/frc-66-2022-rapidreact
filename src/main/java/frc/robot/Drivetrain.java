@@ -269,6 +269,8 @@ public class Drivetrain implements Loggable {
       }
 
 
+    // dont use the below
+    // instructional example
     double kp = 0.25;
 
     public void runAutonomousSimple(double target) {
