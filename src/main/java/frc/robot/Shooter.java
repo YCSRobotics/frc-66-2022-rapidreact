@@ -3,6 +3,9 @@ package frc.robot;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
+import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonUtils;
+
 import edu.wpi.first.math.controller.BangBangController;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -31,6 +34,8 @@ public class Shooter implements Loggable {
 
     private Timer m_timer = new Timer();
     private InterpolatingTreeMap<Double, Number> m_lookupTable = new InterpolatingTreeMap<>();
+
+    private PhotonCamera m_gloworm = new PhotonCamera("PhotonCam");
 
     public Shooter() {
         m_shooterMotor.configFactoryDefault();
@@ -72,8 +77,26 @@ public class Shooter implements Loggable {
                 m_timer.start();
             }
 
+            // wait for 1 second and then shoot
             if (m_timer.get() > 1) {
-                shoot(0.9);
+                if (m_gloworm.getLatestResult().hasTargets()) {
+                    // assumes camera is facing straight forward
+                    // may need to tune pitch for angled camera
+                    // all values in meters
+                    var distance = PhotonUtils.calculateDistanceToTargetMeters(
+                        1.2192, // camera height: 48 inches up where camera is
+                        2.56, // target height: 8 foot five inches up
+                        0, // camera pitch
+                        0  // target pitch
+                    );
+
+                    var power = calculateOptimalShootPower(distance);
+
+                    shoot(power);
+                } else {
+                    shoot(0.9); //fallback shoot value
+                }
+
                 towerFeed(Constants.Motors.kTowerPower);
             } else {
                 shoot(0.9);
