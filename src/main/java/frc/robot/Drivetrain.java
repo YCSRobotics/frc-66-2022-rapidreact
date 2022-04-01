@@ -24,6 +24,7 @@ import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.SerialPort;
@@ -62,6 +63,8 @@ public class Drivetrain implements Loggable {
     private DifferentialDriveKinematics m_kinematics = new DifferentialDriveKinematics(Constants.Autonomous.kTrackWidthMeters);
 
     private final SimpleMotorFeedforward m_feedforward = new SimpleMotorFeedforward(Constants.Autonomous.kS, Constants.Autonomous.kV);
+
+    private static Compressor m_compressor = new Compressor(PneumaticsModuleType.REVPH);
 
     private boolean isShifted = false;
 
@@ -182,6 +185,11 @@ public class Drivetrain implements Loggable {
     public void periodic() {
         m_field.setRobotPose(m_odometry.getPoseMeters());
         m_odometry.update(m_gyro.getRotation2d(), getLeftDistanceMeters(), getRightDistanceMeters());
+    }
+
+    @Log(name = "Pressure", tabName = "Driver")
+    public static double getStoredPSI() {
+        return m_compressor.getPressure();
     }
 
     @Log(name = "Actual Left Voltage")

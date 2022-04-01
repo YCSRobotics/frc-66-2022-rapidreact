@@ -20,6 +20,7 @@ public class AutoStates {
     private static STATE m_currentState = STATE.STOP_ALL;
 
     private Drivetrain m_drivetrain;
+    private Shooter m_shooter;
 
     public static boolean autonomousInit = false;
     public static boolean autonomousPeriodic = false;
@@ -30,14 +31,16 @@ public class AutoStates {
 
     private Timer m_timer;
 
-    public AutoStates(Drivetrain m_drivetrain) {
+    public AutoStates(Drivetrain m_drivetrain, Shooter m_shooter) {
         this.m_drivetrain = m_drivetrain;
+        this.m_shooter = m_shooter;
     }
 
     public static enum STATE {
         TRAJ_GO_STRAIGHT,
         TRAJ_GRABBALL_INIT,
         TRAJ_GRABBALL_FOLLOWING,
+        TRAJ_GRABBALL_SHOOT,
         TRAJ_GRABBALL_END,
         ROTATE_TO_TARGET,
         ROTATE_TO_TARGET_END,
@@ -86,22 +89,42 @@ public class AutoStates {
                 break;
             case STOP_ALL:
                 // THIS STATE SHOULD JUST DO NOTHING!!!
+                if (autonomousPeriodic) {
+                    m_drivetrain.drive(0, 0);
+                }
                 break;
             case TRAJ_GRABBALL_END:
                 m_currentState = STATE.STOP_ALL;
                 break;
+            case TRAJ_GRABBALL_SHOOT:
+                if (m_timer.get() < 5) {
+                    m_shooter.shoot(0.9);
+
+                    if (m_timer.get() > 1) {
+                        m_shooter.towerFeed(Constants.Motors.kTowerPower);
+                    } else {
+                        m_shooter.towerFeed(0.0);
+                    }
+                } else {
+                    m_shooter.shoot(0.0);
+                    m_shooter.towerFeed(0.0);
+                    m_currentState = STATE.TRAJ_GRABBALL_END;
+                }
+
+                m_drivetrain.drive(0.0, 0.0);
             case TRAJ_GRABBALL_FOLLOWING:
                 if (autonomousPeriodic) { // this will be called continuously
                     followTrajectory();
                 }
 
-                if (isTrajectoryDone()) { // done following trajectory
-                    m_currentState = STATE.TRAJ_GRABBALL_END;
+                if (isTrajectoryDone()) { // done following 
+                    m_timer.reset();
+                    m_currentState = STATE.TRAJ_GRABBALL_SHOOT;
                 }
                 break;
             case TRAJ_GRABBALL_INIT:
                 if (autonomousInit) { //this will only be called once
-                    m_trajectory = initTrajectory("paths/SimplePath.wpilib.json");
+                    m_trajectory = initTrajectory("paths/GoStraight.wpilib.json");
                     m_currentState = STATE.TRAJ_GRABBALL_FOLLOWING;
                     autonomousInit = false;
                 }

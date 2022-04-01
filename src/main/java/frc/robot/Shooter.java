@@ -3,20 +3,22 @@ package frc.robot;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.BangBangController;
+import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
+import io.github.oblarg.oblog.Loggable;
+import io.github.oblarg.oblog.annotations.Log;
 
-public class Shooter {
+public class Shooter implements Loggable {
     private Solenoid m_intakeSolenoid = new Solenoid(PneumaticsModuleType.REVPH, Constants.Solenoids.kIntakeSolenoid);
     private TalonSRX m_intakeMotor = new TalonSRX(Constants.Motors.kIntakeMotor);
     private TalonSRX m_towerMotor = new TalonSRX(Constants.Motors.kTowerMotor);
     private TalonSRX m_shooterMotor = new TalonSRX(Constants.Motors.kShooterMotor);
-
+    
     private static DigitalInput m_breakBeamBottom = new DigitalInput(Constants.Sensors.kBreakBeamDIO);
     private Timer shootTimeout = new Timer();
 
@@ -86,6 +88,20 @@ public class Shooter {
 
     public void shoot(double power) {
         m_shooterMotor.set(ControlMode.PercentOutput, power);
+    }
+
+    public double calculateOptimalShootPower(double distance) {
+        var power = Constants.kLookupTable.get(distance);
+        if (power != null) {
+            return power.doubleValue();
+        } else {
+            var lowDistance = 0;
+            var highDistance = 0;
+            for(double key: Constants.kLookupTable.keySet()) {
+                break; //TODO, finish implementation
+            }
+        }
+        return 0.0;
     }
 
     // returns if the dio is "active" or not
