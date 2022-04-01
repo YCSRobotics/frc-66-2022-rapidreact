@@ -35,10 +35,8 @@ public class Shooter {
 
     // shooter controlling logic that is ran in teleop
     public void shooterTeleop() {
-        // extend intake, activate intake motors and tower motors to feed 
-        // into shot position
-        // until DIO is wired, relies on operator to release bumper when
-        // in position
+        // extend and begin intaking
+        // retract if no longer intaking
         if (operatorJoy.getRightBumper()) {
             m_intakeSolenoid.set(true);
             
@@ -49,7 +47,16 @@ public class Shooter {
             intake(0.0);
             m_intakeSolenoid.set(false);
         }
-        
+
+        // manual tower feed control
+        if (!isCurrentlyShooting && Math.abs(operatorJoy.getRightTriggerAxis()) > 0.1) {
+            towerFeed(Constants.Motors.kTowerPower);
+        } else if (!isCurrentlyShooting && Math.abs(operatorJoy.getRightTriggerAxis()) <= 0.1) {
+            towerFeed(0.0);
+        }
+
+        // start shooting motor and wait X seconds
+        // then activate tower to shoot
         if (operatorJoy.getAButton()) {
             if (!isCurrentlyShooting) {
                 isCurrentlyShooting = true;
@@ -65,17 +72,14 @@ public class Shooter {
             }
         } else {
             shoot(0.0);
-            towerFeed(0.0);
             isCurrentlyShooting = false;
         }
     }
 
-    // TODO, verify positive or negative intakes
     public void intake(double power) {
         m_intakeMotor.set(ControlMode.PercentOutput, power);
     }
 
-    // TODO, verify positive or negative goes the direction we want
     public void towerFeed(double power) {
         m_towerMotor.set(ControlMode.PercentOutput, power);
     }
@@ -89,7 +93,7 @@ public class Shooter {
         return m_breakBeamBottom.get();
     }
 
-    // TODO, math
+    // TODO, is 
     public double getShooterRPM() {
         return m_shooterMotor.getSelectedSensorVelocity();
     }

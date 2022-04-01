@@ -17,6 +17,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
@@ -54,9 +55,10 @@ public class Drivetrain implements Loggable {
 
     // autonomous functions
     private DifferentialDriveOdometry m_odometry = new DifferentialDriveOdometry(m_gyro.getRotation2d());
-    private PIDController m_leftPIDController = new PIDController(Constants.Autonomous.kP, 0, 0);
+    private PIDController m_leftPIDController = new PIDController(Constants.Autonomous.kP, 0, 0); 
     private PIDController m_rightPIDController = new PIDController(Constants.Autonomous.kP, 0, 0);
 
+    private SlewRateLimiter m_limiter = new SlewRateLimiter(Constants.Motors.kDriveRampRate, 0.0);
     private DifferentialDriveKinematics m_kinematics = new DifferentialDriveKinematics(Constants.Autonomous.kTrackWidthMeters);
 
     private final SimpleMotorFeedforward m_feedforward = new SimpleMotorFeedforward(Constants.Autonomous.kS, Constants.Autonomous.kV);
@@ -98,14 +100,7 @@ public class Drivetrain implements Loggable {
         m_gyro.calibrate();
         m_gyro.reset();
 
-        // apply ramp rate to prevent burnout
-        m_leftMaster.setOpenLoopRampRate(Constants.Motors.kDriveRampRate);
-        m_rightMaster.setOpenLoopRampRate(Constants.Motors.kDriveRampRate);
-
-        m_leftMaster.setClosedLoopRampRate(Constants.Motors.kDriveRampRate);
-        m_rightMaster.setClosedLoopRampRate(Constants.Motors.kDriveRampRate);
-
-        // no need to invert follower on spark maxes
+        // no need to invert follower on spark `axes
         m_leftMaster.setInverted(Constants.Motors.kInvertLeftSide);
         m_rightMaster.setInverted(Constants.Motors.kInvertRightSide);
 
@@ -126,8 +121,16 @@ public class Drivetrain implements Loggable {
 
     // no need to implement a deadband as it is already implemented in XboxController (default 0.02)
     public void drive() {
-        m_drive.arcadeDrive(-driverJoy.getLeftY(), driverJoy.getRightX() * Constants.Motors.kTurnLimiter, true);
-        
+        // implemented slew rate limiter for accel/decel ramp
+        // ignore when initial input is less than range to enable fine adjustments
+        var leftY = -driverJoy.getLeftY();
+        if (Math.abs(leftY) > 0.2) {
+            m_drive.arcadeDrive(m_limiter.calculate(leftY), driverJoy.getRightX() * Constants.Motors.kTurnLimiter, false);
+        } else {
+            m_drive.arcadeDrive(leftY, driverJoy.getRightX() * Constants.Motors.kTurnLimiter, false);
+        }
+
+        // activate shifter
         if (driverJoy.getLeftBumper()) {
             m_shifter.toggle();
         }
@@ -141,6 +144,7 @@ public class Drivetrain implements Loggable {
     }
 
     // autonomous drive function, this should only be called in autonomous
+    // converts our trajectory speeds into wheel speeds
     public void drive(double xSpeed, double rot) {
         var wheelSpeeds = m_kinematics.toWheelSpeeds(new ChassisSpeeds(xSpeed, 0.0, rot));
         setSpeeds(wheelSpeeds);

@@ -25,8 +25,8 @@ public class Constants {
         public static boolean kInvertLeftSide = true;
         public static boolean kInvertRightSide = false;
 
-        public static double kDriveRampRate = 0.25; // 0.5s to full throttle
-        public static double kTurnLimiter = 0.75;
+        public static double kDriveRampRate = 1; //sets maximum ramp value
+        public static double kTurnLimiter = 1;
         public static double kMaxSpeed = 0.5;
 
         public static double kTargetShooterRPM = 300; //TODO, change/tune
