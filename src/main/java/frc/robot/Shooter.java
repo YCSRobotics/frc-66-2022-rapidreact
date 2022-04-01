@@ -30,9 +30,15 @@ public class Shooter implements Loggable {
     private XboxController operatorJoy = Constants.IO.m_operatorJoy;
 
     private Timer m_timer = new Timer();
+    private InterpolatingTreeMap<Double, Number> m_lookupTable = new InterpolatingTreeMap<>();
 
     public Shooter() {
         m_shooterMotor.configFactoryDefault();
+
+        // convert our map into an interpolatingtreemap
+        for (double key: Constants.kLookupTable.keySet()) {
+            m_lookupTable.put(key, Constants.kLookupTable.get(key));
+        }
     }
 
     // shooter controlling logic that is ran in teleop
@@ -91,17 +97,7 @@ public class Shooter implements Loggable {
     }
 
     public double calculateOptimalShootPower(double distance) {
-        var power = Constants.kLookupTable.get(distance);
-        if (power != null) {
-            return power.doubleValue();
-        } else {
-            var lowDistance = 0;
-            var highDistance = 0;
-            for(double key: Constants.kLookupTable.keySet()) {
-                break; //TODO, finish implementation
-            }
-        }
-        return 0.0;
+        return m_lookupTable.get(distance);
     }
 
     // returns if the dio is "active" or not
