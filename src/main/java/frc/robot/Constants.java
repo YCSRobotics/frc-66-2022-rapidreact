@@ -78,9 +78,11 @@ public class Constants {
     }
    
     public static Map<Double, Number> kLookupTable = Map.ofEntries(
-        entry(0.5, 0.7),
-        entry(0.7, 0.78),
-        entry(1.0, 0.9),
-        entry(2.0, 1)
+        entry(1.0, 0.75),
+        entry(2.0, 0.88),
+        entry(2.2, 0.90),
+        entry(2.5, 1),
+        entry(3.0, 1),
+        entry(4.0, 1)
     );
 }

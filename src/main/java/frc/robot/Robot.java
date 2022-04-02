@@ -56,7 +56,6 @@ public class Robot extends TimedRobot {
     Logger.updateEntries();
     m_drivetrain.periodic();
     m_autoStates.runStateMachine();
-    System.out.println(AutoStates.getState().name());
   }
 
   @Override

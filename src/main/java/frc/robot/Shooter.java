@@ -6,13 +6,16 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonUtils;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.BangBangController;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import io.github.oblarg.oblog.Loggable;
 import io.github.oblarg.oblog.annotations.Log;
 
@@ -35,7 +38,7 @@ public class Shooter implements Loggable {
     private Timer m_timer = new Timer();
     private InterpolatingTreeMap<Double, Number> m_lookupTable = new InterpolatingTreeMap<>();
 
-    private PhotonCamera m_gloworm = new PhotonCamera("PhotonCam");
+    private PhotonCamera m_gloworm = new PhotonCamera("gloworm");
 
     public Shooter() {
         m_shooterMotor.configFactoryDefault();
@@ -79,16 +82,8 @@ public class Shooter implements Loggable {
 
             // wait for 1 second and then shoot
             if (m_timer.get() > 1) {
-                if (m_gloworm.getLatestResult().hasTargets()) {
-                    // assumes camera is facing straight forward
-                    // may need to tune pitch for angled camera
-                    // all values in meters
-                    var distance = PhotonUtils.calculateDistanceToTargetMeters(
-                        1.2192, // camera height: 48 inches up where camera is
-                        2.56, // target height: 8 foot five inches up
-                        0, // camera pitch
-                        0  // target pitch
-                    );
+                if (isValidTarget()) {
+                    var distance = getDistanceToTarget();
 
                     var power = calculateOptimalShootPower(distance);
 
@@ -120,19 +115,44 @@ public class Shooter implements Loggable {
     }
 
     public double calculateOptimalShootPower(double distance) {
+        System.out.println("Optimal Power" + m_lookupTable.get(distance));
         return m_lookupTable.get(distance);
     }
 
     @Log.BooleanBox(name = "Target Detected", tabName = "Driver", width = 2, height = 2)
     public boolean isValidTarget() {
-        return m_gloworm.getLatestResult().hasTargets();
+        try {
+            return m_gloworm.getLatestResult().hasTargets();
+        } catch (NullPointerException ex) {
+            return false;
+        }
+    }
+
+    @Log(name = "Target Distance", tabName = "Driver", width = 3, height = 2)
+    public double getDistanceToTarget() {
+        // assumes camera is facing straight forward
+        // may need to tune pitch for angled camera
+        // all values in meters
+        var currentTarget = m_gloworm.getLatestResult();
+        var distance = -1.0;
+    
+        if (currentTarget.hasTargets()) {
+            distance = PhotonUtils.calculateDistanceToTargetMeters(
+                1.219, // camera height: 48 inches up where camera is
+                2.565, // target height: 8 foot five inches up
+                Units.degreesToRadians(43),
+                Units.degreesToRadians(currentTarget.getBestTarget().getPitch()) 
+            );
+        }
+        
+        return distance;
     }
     // returns if the dio is "active" or not
     public static boolean isBottomCargoLoaded() {
         return m_breakBeamBottom.get();
     }
 
-    // TODO, is 
+    // TODO 
     public double getShooterRPM() {
         return m_shooterMotor.getSelectedSensorVelocity();
     }
