@@ -119,7 +119,7 @@ public class Shooter implements Loggable {
         return m_lookupTable.get(distance);
     }
 
-    @Log.BooleanBox(name = "Target Detected", tabName = "Driver", width = 2, height = 2)
+    @Log.BooleanBox(name = "Target Detected", tabName = "Driver", width = 2, height = 5)
     public boolean isValidTarget() {
         try {
             return m_gloworm.getLatestResult().hasTargets();

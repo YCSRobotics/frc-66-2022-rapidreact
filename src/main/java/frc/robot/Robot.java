@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import frc.robot.AutoStates.STATE;
 import io.github.oblarg.oblog.Logger;
@@ -49,6 +50,10 @@ public class Robot extends TimedRobot {
     m_chooser.addOption("Go Straight & Shoot", AutoStates.STATE.TRAJ_GRABBALL_INIT);
 
     LiveWindow.disableAllTelemetry(); //disable livewindow telemetry, causes robot lag
+
+    
+    Shuffleboard.selectTab("Driver");
+    Shuffleboard.getTab("Driver").addCamera("Shoot Cam", "Driver Cam", "http://10.0.66.15:1182/stream.mjpg").withSize(4, 3);
   }
 
   @Override
@@ -56,6 +61,10 @@ public class Robot extends TimedRobot {
     Logger.updateEntries();
     m_drivetrain.periodic();
     m_autoStates.runStateMachine();
+
+    if (DriverStation.isFMSAttached()) {
+      Shuffleboard.selectTab("Driver");
+    }
   }
 
   @Override
