@@ -12,6 +12,7 @@ import static java.util.Map.entry;
 
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.wpilibj.XboxController;
+import io.github.oblarg.oblog.annotations.Config;
 
 /** Add your docs here. */
 public class Constants {
@@ -70,6 +71,17 @@ public class Constants {
 
     public static class Sensors {
         public static int kBreakBeamDIO = 0;
+
+        public static final boolean kShooterOneInverted = false;
+
+        public static double kP_shtr          = 0.65; 
+        public static final double kI_shtr          = 0;
+        public static double kD_shtr          = 4.5; 
+        public static final double kIz_shtr         = 0; 
+        public static final double kFF_shtr         = 0.00; 
+        
+        public static final int kPIDLoopIdx      = 0;
+        public static final int kTimeoutMs       = 30;
     }
 
     public static class Solenoids {

@@ -44,6 +44,7 @@ public class AutoStates {
         TRAJ_GRABBALL_END,
         ROTATE_TO_TARGET,
         ROTATE_TO_TARGET_END,
+        INTAKE_BALL,
         SHOOT_TARGET,
         SHOOT_TARGET_END,
         STOP_ALL, GO_STRAIGHT_INIT,
@@ -80,8 +81,18 @@ public class AutoStates {
                 }
                 break;
             case ROTATE_TO_TARGET:
+                if (!autonomousPeriodic) {
+                    m_currentState = STATE.STOP_ALL;
+                }
+
+                if (m_drivetrain.turnToAngle()) {
+                    m_currentState = STATE.ROTATE_TO_TARGET_END;
+                } else {
+                    // do nothing, turning to target
+                }
                 break;
             case ROTATE_TO_TARGET_END:
+                m_currentState = STATE.STOP_ALL;
                 break;
             case SHOOT_TARGET:
                 break;
@@ -92,6 +103,14 @@ public class AutoStates {
                 if (autonomousPeriodic) {
                     m_drivetrain.drive(0, 0);
                 }
+                break;
+            case INTAKE_BALL:
+                if (!autonomousPeriodic) {
+                    m_currentState = STATE.STOP_ALL;
+                }
+
+                m_shooter.extend(true);
+                m_shooter.towerFeed(Constants.Motors.kTowerPower);
                 break;
             case TRAJ_GRABBALL_END:
                 m_currentState = STATE.STOP_ALL;

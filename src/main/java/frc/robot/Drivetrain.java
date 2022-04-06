@@ -268,6 +268,20 @@ public class Drivetrain implements Loggable {
         m_field.getObject("foo").setPoses(poses);
       }
 
+    // bang bang cuz im lazy
+    public boolean turnToAngle() {
+        var angle = getAngle();
+
+        if (angle < 160) {
+            m_drive.tankDrive(0.3, -0.3);
+            return false;
+        } else if (angle > 180){
+            m_drive.tankDrive(-0.3, 0.3);
+            return false;
+        } else {
+            return true;
+        }
+    }
 
     // dont use the below
     // instructional example
