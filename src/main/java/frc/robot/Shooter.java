@@ -1,13 +1,16 @@
 package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonUtils;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.BangBangController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -21,9 +24,9 @@ import io.github.oblarg.oblog.annotations.Log;
 
 public class Shooter implements Loggable {
     private Solenoid m_intakeSolenoid = new Solenoid(PneumaticsModuleType.REVPH, Constants.Solenoids.kIntakeSolenoid);
-    private TalonSRX m_intakeMotor = new TalonSRX(Constants.Motors.kIntakeMotor);
-    private TalonSRX m_towerMotor = new TalonSRX(Constants.Motors.kTowerMotor);
-    private TalonSRX m_shooterMotor = new TalonSRX(Constants.Motors.kShooterMotor);
+    private WPI_TalonSRX m_intakeMotor = new WPI_TalonSRX(Constants.Motors.kIntakeMotor);
+    private WPI_TalonSRX m_towerMotor = new WPI_TalonSRX(Constants.Motors.kTowerMotor);
+    private WPI_TalonSRX m_shooterMotor = new WPI_TalonSRX(Constants.Motors.kShooterMotor);
     
     private static DigitalInput m_breakBeamBottom = new DigitalInput(Constants.Sensors.kBreakBeamDIO);
     private Timer shootTimeout = new Timer();
@@ -35,6 +38,8 @@ public class Shooter implements Loggable {
     private BangBangController m_shooterVelocityBB = new BangBangController();
     private XboxController operatorJoy = Constants.IO.m_operatorJoy;
 
+    private SimpleMotorFeedforward m_feedforward = new SimpleMotorFeedforward(7, 12);
+
     private Timer m_timer = new Timer();
     private InterpolatingTreeMap<Double, Number> m_lookupTable = new InterpolatingTreeMap<>();
 
@@ -42,6 +47,13 @@ public class Shooter implements Loggable {
 
     public Shooter() {
         m_shooterMotor.configFactoryDefault();
+        m_shooterMotor.configNeutralDeadband(0.001);
+        m_shooterMotor.config_kP(0, 0.0, 20);
+        m_shooterMotor.config_kI(0, 0.0, 20);
+        m_shooterMotor.config_kD(0, 0.0, 20);
+        m_shooterMotor.config_kF(0, 1023.0 / 32000.0, 20);
+        m_shooterMotor.configVoltageCompSaturation(10);
+        m_shooterMotor.enableVoltageCompensation(true);
 
         // convert our map into an interpolatingtreemap
         for (double key: Constants.kLookupTable.keySet()) {
@@ -80,21 +92,19 @@ public class Shooter implements Loggable {
                 m_timer.start();
             }
 
+            if (isValidTarget()) {
+                var distance = getDistanceToTarget();
+
+                var velocity = calculateOptimalShootVelocity(distance);
+
+                shoot(velocity);
+            } else {
+                shoot(30000);
+            }
+
             // wait for 1 second and then shoot
             if (m_timer.get() > 1) {
-                if (isValidTarget()) {
-                    var distance = getDistanceToTarget();
-
-                    var power = calculateOptimalShootPower(distance);
-
-                    shoot(power);
-                } else {
-                    shoot(0.9); //fallback shoot value
-                }
-
                 towerFeed(Constants.Motors.kTowerPower);
-            } else {
-                shoot(0.9);
             }
         } else {
             shoot(0.0);
@@ -110,12 +120,12 @@ public class Shooter implements Loggable {
         m_towerMotor.set(ControlMode.PercentOutput, power);
     }
 
-    public void shoot(double power) {
-        m_shooterMotor.set(ControlMode.PercentOutput, power);
+    public void shoot(double velocity) {
+        m_shooterMotor.set(ControlMode.Velocity, velocity);
     }
 
-    public double calculateOptimalShootPower(double distance) {
-        System.out.println("Optimal Power" + m_lookupTable.get(distance));
+    public double calculateOptimalShootVelocity(double distance) {
+        System.out.println("Optimal Velocity" + m_lookupTable.get(distance));
         return m_lookupTable.get(distance);
     }
 
