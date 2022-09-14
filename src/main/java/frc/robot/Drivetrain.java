@@ -192,6 +192,11 @@ public class Drivetrain implements Loggable {
         return m_compressor.getPressure();
     }
 
+    @Log(name = "IsCompressorRunning", tabName = "Driver", width = 2, height = 2)
+    public boolean getCompressorState() {
+        return m_compressor.enabled();
+    }
+
     @Log(name = "Actual Left Voltage")
     public static double getLeftVoltage() {
         return m_leftMaster.getBusVoltage();

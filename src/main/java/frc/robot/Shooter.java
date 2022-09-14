@@ -51,7 +51,7 @@ public class Shooter implements Loggable {
         m_shooterMotor.config_kP(0, 0.0, 20);
         m_shooterMotor.config_kI(0, 0.0, 20);
         m_shooterMotor.config_kD(0, 0.0, 20);
-        m_shooterMotor.config_kF(0, 1023.0 / 32000.0, 20);
+        m_shooterMotor.config_kF(0, 1023.0 / 48000.0, 20);
         m_shooterMotor.configVoltageCompSaturation(10);
         m_shooterMotor.enableVoltageCompensation(true);
 
@@ -99,7 +99,7 @@ public class Shooter implements Loggable {
 
                 shoot(velocity);
             } else {
-                shoot(30000);
+                shoot(40000);
             }
 
             // wait for 1 second and then shoot
